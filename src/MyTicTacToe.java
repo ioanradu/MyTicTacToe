@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class MyTicTacToe {
 
     public static final char SYMBOL_X = 'X';
@@ -33,12 +35,95 @@ public class MyTicTacToe {
         }
     }
 
-    public boolean isWin(){
+    public Move readMove(){ // realizam un obiect pentru a putea returna 2 valori.
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Introducem mutarea: ");
+        String myMove = scanner.nextLine();
+        String[] myString = myMove.split("-");
+        int myLine = Integer.valueOf(myString[0]);
+        int myCol = Integer.valueOf(myString[1]);
+
+        Move move = new Move(myLine, myCol);
+        return move; // returneaza myLine si myCol
+
+
+    }
+    public void makeMove(Move move, char symbol){
+        game[move.line][move.col] = symbol;
+
+    }
+
+    public boolean isWinLine(int line, char symbol){
+        boolean isWin = true;
+        int i = 0;
+        while (i < GAME_SIZE && isWin == true){
+            if(game[line][i]!= symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWinDiag1(char symbol){
+        boolean isWin = true;
+        int i = 0;
+        while(i < GAME_SIZE && isWin == true){
+            if(game[i][i] != symbol){
+                isWin = false;
+            }
+        i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWinDiag2(char symbol){
+        boolean isWin = true;
+        int i = 0;
+        while(i < GAME_SIZE && isWin == true){
+            if(game[i][GAME_SIZE - i - 1] != symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWinCol(int col, char symbol){
+        boolean isWin = true;
+        int i = 0;
+        while (i < GAME_SIZE && isWin == true){
+            if(game[i][col]!= symbol){
+                isWin = false;
+            }
+            i++;
+        }
+        return isWin;
+    }
+
+    public boolean isWin(Move move, char symbol){
+        boolean isWin = false;
+
         // testez linii
+       isWin = isWinLine(move.line, symbol);
+
         // testez coloane
+       if(isWin == false){
+           isWin = isWinCol(move.col, symbol);
+       }
+
         // testez diag1
-        // tessez diag2
-        return false;
+        if(isWin == false && move.line == move.col){
+            isWin = isWinDiag1(symbol);
+
+        }
+
+        // testez diag2
+        if(isWin == false && move.line == GAME_SIZE - move.col - 1){ // pe diagonala secundara formula este i = n - j -1; n = GAME_SIZE
+            isWin = isWinDiag2(symbol);
+        }
+
+        return isWin;
     }
 
 
@@ -47,21 +132,52 @@ public class MyTicTacToe {
         System.out.println("Incepe jocul");
         showGame();
         Player currentPlayer = player1;
+        char currentSymbol = SYMBOL_X;
         int nrMoves = 0;
         boolean isWin = false; // la inceput nu avem un castigator
 
-        while(isWin == false && nrMoves < 9){
+        while(isWin == false && nrMoves < (GAME_SIZE * GAME_SIZE)) {
 
             // citesc mutarea
+            Move move = readMove();
+            System.out.println(move.line);
+            System.out.println(move.col);
+
             //validez mutarea
+
+
             //efectuez mutarea
+            makeMove(move, currentSymbol);
+            showGame();
+
             //numar mutarea
+
+            nrMoves++;
+            if (nrMoves >= (2 * GAME_SIZE - 1)) {
+                isWin = isWin(move, currentSymbol);
+            }
             //testez daca avem stare de win
 
+            isWin = isWin(move, currentSymbol);
             //daca nu e win sau mai multe mutari -- schimb jucatorul
+            if (!isWin) {
+
+                if (currentPlayer == player1) {
+                    currentPlayer = player2;
+                    currentSymbol = SYMBOL_0;
+                } else {
+                    currentPlayer = player1;
+                    currentSymbol = SYMBOL_X;
+                }
+            }
         }
 
         // afisez mesaj corespunzator
+            if(isWin == true){
+                System.out.println("Castigatorul este " + currentPlayer.name);
+            } else {
+                System.out.println("Nu exista niciun castigator!");
+            }
     }
 
 }
